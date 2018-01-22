@@ -117,7 +117,7 @@ gulp.task('rollup:umd', function () {
       // The name to use for the module for UMD/IIFE bundles
       // (required for bundles with exports)
       // See https://github.com/rollup/rollup/wiki/JavaScript-API#modulename
-      moduleName: 'ngx-intl-tel-input',
+      name: 'ngx-intl-tel-input',
 
       // See https://github.com/rollup/rollup/wiki/JavaScript-API#globals
       globals: {

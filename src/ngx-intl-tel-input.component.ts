@@ -11,6 +11,8 @@ import * as _ from 'google-libphonenumber';
 })
 export class NgxIntlTelInputComponent implements OnInit {
   @Input() value = '';
+  @Input() intlFormat: boolean = false;
+  @Input() disabled: boolean = false;
   @Input() preferredCountries: Array<string> = [];
   @Output() valueChange: EventEmitter<string> = new EventEmitter<string>();
 
@@ -19,7 +21,7 @@ export class NgxIntlTelInputComponent implements OnInit {
   preferredCountriesInDropDown: Array<Country> = [];
   selectedCountry: Country = new Country();
   constructor(
-      private countryCodeData: CountryCode
+    private countryCodeData: CountryCode
   ) {
     this.fetchCountryData();
   }
@@ -41,14 +43,22 @@ export class NgxIntlTelInputComponent implements OnInit {
   }
 
   public onPhoneNumberChange(): void {
-    this.value = this.selectedCountry.dialCode + this.phone_number;
+    if (this.phone_number.startsWith('+')) {
+      this.value = this.phone_number;
+    }
+    else {
+      if (this.intlFormat)
+        this.value = this.getPhoneNumberInternationalFormat(this.selectedCountry.iso2.toUpperCase(), this.phone_number)
+      else
+        this.value = this.selectedCountry.dialCode + this.phone_number;
+    }
     this.valueChange.emit(this.value);
   }
 
   public onCountrySelect(country: Country, el): void {
     this.selectedCountry = country;
     if (this.phone_number.length > 0) {
-      this.value = this.selectedCountry.dialCode + this.phone_number;
+      this.value = this.phone_number.startsWith('+') ? '' : this.selectedCountry.dialCode + this.phone_number;
       this.valueChange.emit(this.value);
     }
     el.focus();
@@ -59,6 +69,18 @@ export class NgxIntlTelInputComponent implements OnInit {
     let inputChar = String.fromCharCode(event.charCode);
     if (!pattern.test(inputChar)) {
       event.preventDefault();
+    }
+  }
+
+  private getPhoneNumberInternationalFormat(countryCode: string, inputNumber: string) {
+    const phoneUtil = _.PhoneNumberUtil.getInstance();
+    const pnf = _.PhoneNumberFormat;
+    try {
+      let phoneNumber = phoneUtil.parse(inputNumber, countryCode);
+      return phoneUtil.format(phoneNumber, pnf.INTERNATIONAL);
+    } catch (e) {
+      console.log('CountryCode: "' + countryCode + '" ' + e);
+      return '';
     }
   }
 

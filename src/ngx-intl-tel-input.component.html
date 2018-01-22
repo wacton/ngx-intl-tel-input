@@ -22,7 +22,7 @@
             </li>
         </ul>
     </div>
-    <input type="tel" id="phone" class="form-control" autocomplete="off"
+    <input type="tel" id="phone" class="form-control" autocomplete="off" [disabled]="disabled"
            (keypress)="onInputKeyPress($event)"
            [(ngModel)]="phone_number"
            (ngModelChange)="onPhoneNumberChange()"
